@@ -46,6 +46,7 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public OrderDto save(final OrderDto orderDto) {
 		log.info("*** OrderDto, service; save order *");
+		orderDto.setOrderId(null);
 		return OrderMappingHelper.map(this.orderRepository
 				.save(OrderMappingHelper.map(orderDto)));
 	}
