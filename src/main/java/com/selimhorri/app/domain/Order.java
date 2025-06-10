@@ -64,7 +64,7 @@ public final class Order extends AbstractMappedEntity implements Serializable {
 	@JoinColumn(name = "cart_id")
 	private Cart cart;
 	
-	@Column(name = "isActive")
+	@Column(name = "is_active")
 	private boolean isActive;
 	
 }

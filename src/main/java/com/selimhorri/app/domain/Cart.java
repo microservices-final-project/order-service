@@ -39,7 +39,7 @@ public final class Cart extends AbstractMappedEntity implements Serializable {
 	@Column(name = "cart_id", unique = true, nullable = false, updatable = false)
 	private Integer cartId;
 	
-	@Column(name = "isActive")
+	@Column(name = "is_active")
 	private boolean isActive;
 
 	@Column(name = "user_id")

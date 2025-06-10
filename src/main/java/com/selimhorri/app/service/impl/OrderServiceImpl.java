@@ -3,11 +3,11 @@ package com.selimhorri.app.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
-import com.selimhorri.app.domain.Cart;
 import com.selimhorri.app.domain.Order;
 import com.selimhorri.app.dto.OrderDto;
 import com.selimhorri.app.exception.wrapper.CartNotFoundException;
@@ -116,11 +116,12 @@ public class OrderServiceImpl implements OrderService {
         }
 
         @Override
-        public void deleteById(final Integer cartId) {
-                log.info("*** Void, service; soft delete cart by id *");
-                Cart cart = this.cartRepository.findByCartIdAndIsActiveTrue(cartId)
-                                .orElseThrow(() -> new RuntimeException("Cart not found with id: " + cartId));
-                cart.setActive(false);
-                this.cartRepository.save(cart);
+        public void deleteById(final Integer orderId) {
+                Order order = orderRepository.findByOrderIdAndIsActiveTrue(orderId)
+                                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
+
+                order.setActive(false);
+                orderRepository.save(order);
+                log.info("Order with id {} has been deactivated", orderId);
         }
 }

@@ -1,6 +1,7 @@
 package com.selimhorri.app.service.impl;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -37,7 +38,7 @@ public class CartServiceImpl implements CartService {
 	@Override
 	public List<CartDto> findAll() {
 		log.info("*** CartDto List, service; fetch all active carts *");
-		return this.cartRepository.findAllByIsActiveTrue() // Cambiado para buscar solo activos
+		return this.cartRepository.findAllByIsActiveTrue()
 				.stream()
 				.map(CartMappingHelper::map)
 				.map(c -> {
@@ -47,13 +48,15 @@ public class CartServiceImpl implements CartService {
 										+ c.getUserDto().getUserId(),
 								UserDto.class));
 						return c;
+					} catch (HttpClientErrorException.NotFound e) {
+						log.warn("User not found for userId: {} - {}", c.getUserDto().getUserId(), e.getMessage());
+						return c; // Devuelve el carrito sin datos de usuario
 					} catch (Exception e) {
-						log.warn("Error fetching user data for userId: {} - {}",
-								c.getUserDto().getUserId(), e.getMessage());
-						return null;
+						log.error("Error fetching user data for userId: {}", c.getUserDto().getUserId(), e);
+						return null; // Filtra otros errores
 					}
 				})
-				.filter(c -> c != null)
+				.filter(Objects::nonNull) // Filtra nulos (solo si devuelves null en otros casos)
 				.distinct()
 				.collect(Collectors.toUnmodifiableList());
 	}
