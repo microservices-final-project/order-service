@@ -1,12 +1,14 @@
 package com.selimhorri.app.service.impl;
 
 import java.util.List;
+import java.util.PrimitiveIterator.OfDouble;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
+import com.selimhorri.app.domain.Order;
 import com.selimhorri.app.dto.OrderDto;
 import com.selimhorri.app.exception.wrapper.CartNotFoundException;
 import com.selimhorri.app.exception.wrapper.OrderNotFoundException;
@@ -72,15 +74,42 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public OrderDto update(final OrderDto orderDto) {
 		log.info("*** OrderDto, service; update order *");
-		return OrderMappingHelper.map(this.orderRepository
-				.save(OrderMappingHelper.map(orderDto)));
+
+		try {
+			Order existingOrder = this.orderRepository.findById(orderDto.getOrderId())
+					.orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderDto.getOrderId()));
+
+			log.info("Existing order fetched successfully");
+
+			Order updatedOrder = OrderMappingHelper.mapForUpdate(orderDto, existingOrder.getCart());
+
+			log.info("Order mapped successfully");
+
+			// Test if the issue occurs during save
+			Order savedOrder = this.orderRepository.save(updatedOrder);
+
+			log.info("Order saved successfully");
+
+			return OrderMappingHelper.map(savedOrder);
+
+		} catch (Exception e) {
+			log.error("Error during order update: ", e);
+			throw e;
+		}
 	}
 
 	@Override
 	public OrderDto update(final Integer orderId, final OrderDto orderDto) {
 		log.info("*** OrderDto, service; update order with orderId *");
-		return OrderMappingHelper.map(this.orderRepository
-				.save(OrderMappingHelper.map(this.findById(orderId))));
+
+		// Get existing order to preserve cart association
+		Order existingOrder = this.orderRepository.findById(orderId)
+				.orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderId));
+		orderDto.setOrderId(orderId);
+		// Map the updates but preserve the cart from existing order
+		Order updatedOrder = OrderMappingHelper.mapForUpdate(orderDto, existingOrder.getCart());
+
+		return OrderMappingHelper.map(this.orderRepository.save(updatedOrder));
 	}
 
 	@Override

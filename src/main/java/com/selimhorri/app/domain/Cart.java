@@ -20,11 +20,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "carts")
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "orders") // IMPORTANT: Exclude orders collection
 @EqualsAndHashCode(callSuper = true, exclude = {"orders"})
 @Data
 @Builder

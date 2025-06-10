@@ -28,11 +28,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "orders")
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "cart") // Exclude cart to prevent circular reference
 @EqualsAndHashCode(callSuper = true, exclude = {"cart"})
 @Data
 @Builder

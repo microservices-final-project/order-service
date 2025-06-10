@@ -55,8 +55,19 @@ Crear orden
 
 POST `api/orders`
 
-
 Recibe el id entonces sobreescribe
+
+Editar orden por body
+
+PUT `api/orders`
+
+No edita por referencia circular con cart
+
+Editar orden por query
+
+PUT `api/orders`
+
+No edita por referencia circular con cart
 
 Ejemplo de payload
 

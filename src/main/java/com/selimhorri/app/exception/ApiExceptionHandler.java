@@ -3,6 +3,8 @@ package com.selimhorri.app.exception;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +51,8 @@ public class ApiExceptionHandler {
 			OrderNotFoundException.class,
 			IllegalStateException.class,
 			UserNotFoundException.class,
-			EmptyResultDataAccessException.class
+			EmptyResultDataAccessException.class,
+			EntityNotFoundException.class
 	})
 	public <T extends RuntimeException> ResponseEntity<ExceptionMsg> handleApiRequestException(final T e) {
 
