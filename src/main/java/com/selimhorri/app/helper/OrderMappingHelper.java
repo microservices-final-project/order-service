@@ -1,5 +1,7 @@
 package com.selimhorri.app.helper;
 
+import java.time.LocalDateTime;
+
 import com.selimhorri.app.domain.Cart;
 import com.selimhorri.app.domain.Order;
 import com.selimhorri.app.dto.CartDto;
@@ -23,7 +25,7 @@ public interface OrderMappingHelper {
     public static Order map(final OrderDto orderDto) {
         return Order.builder()
                 .orderId(orderDto.getOrderId())
-                .orderDate(orderDto.getOrderDate())
+                .orderDate(LocalDateTime.now())
                 .orderDesc(orderDto.getOrderDesc())
                 .orderFee(orderDto.getOrderFee())
                 .cart(
