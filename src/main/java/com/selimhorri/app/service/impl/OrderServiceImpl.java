@@ -7,6 +7,7 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
+import com.selimhorri.app.domain.Cart;
 import com.selimhorri.app.domain.Order;
 import com.selimhorri.app.dto.OrderDto;
 import com.selimhorri.app.exception.wrapper.CartNotFoundException;
@@ -30,8 +31,8 @@ public class OrderServiceImpl implements OrderService {
 
         @Override
         public List<OrderDto> findAll() {
-                log.info("*** OrderDto List, service; fetch all orders *");
-                return this.orderRepository.findAll()
+                log.info("*** OrderDto List, service; fetch all active orders *");
+                return this.orderRepository.findAllByIsActiveTrue() // Cambia esto
                                 .stream()
                                 .map(OrderMappingHelper::map)
                                 .distinct()
@@ -40,11 +41,11 @@ public class OrderServiceImpl implements OrderService {
 
         @Override
         public OrderDto findById(final Integer orderId) {
-                log.info("*** OrderDto, service; fetch order by id *");
-                return this.orderRepository.findById(orderId)
+                log.info("*** OrderDto, service; fetch active order by id *");
+                return this.orderRepository.findByOrderIdAndIsActiveTrue(orderId) // Cambia esto
                                 .map(OrderMappingHelper::map)
-                                .orElseThrow(() -> new OrderNotFoundException(String
-                                                .format("Order with id: %d not found", orderId)));
+                                .orElseThrow(() -> new OrderNotFoundException(
+                                                String.format("Order with id: %d not found", orderId)));
         }
 
         @Override
@@ -76,7 +77,7 @@ public class OrderServiceImpl implements OrderService {
                 log.info("*** OrderDto, service; update order *");
 
                 try {
-                        Order existingOrder = this.orderRepository.findById(orderDto.getOrderId())
+                        Order existingOrder = this.orderRepository.findByOrderIdAndIsActiveTrue(orderDto.getOrderId())
                                         .orElseThrow(() -> new OrderNotFoundException(
                                                         "Order not found with ID: " + orderDto.getOrderId()));
 
@@ -105,7 +106,7 @@ public class OrderServiceImpl implements OrderService {
                 log.info("*** OrderDto, service; update order with orderId *");
 
                 // Get existing order to preserve cart association
-                Order existingOrder = this.orderRepository.findById(orderId)
+                Order existingOrder = this.orderRepository.findByOrderIdAndIsActiveTrue(orderId)
                                 .orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderId));
                 orderDto.setOrderId(orderId);
                 // Map the updates but preserve the cart from existing order
@@ -115,9 +116,11 @@ public class OrderServiceImpl implements OrderService {
         }
 
         @Override
-        public void deleteById(final Integer orderId) {
-                log.info("*** Void, service; delete order by id *");
-                this.orderRepository.delete(OrderMappingHelper.map(this.findById(orderId)));
+        public void deleteById(final Integer cartId) {
+                log.info("*** Void, service; soft delete cart by id *");
+                Cart cart = this.cartRepository.findByCartIdAndIsActiveTrue(cartId)
+                                .orElseThrow(() -> new RuntimeException("Cart not found with id: " + cartId));
+                cart.setActive(false);
+                this.cartRepository.save(cart);
         }
-
 }

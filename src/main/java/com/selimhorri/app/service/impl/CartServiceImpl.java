@@ -12,6 +12,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.selimhorri.app.constant.AppConstant;
+import com.selimhorri.app.domain.Cart;
 import com.selimhorri.app.dto.CartDto;
 import com.selimhorri.app.dto.UserDto;
 import com.selimhorri.app.exception.wrapper.CartNotFoundException;
@@ -35,24 +36,32 @@ public class CartServiceImpl implements CartService {
 
 	@Override
 	public List<CartDto> findAll() {
-		log.info("*** CartDto List, service; fetch all carts *");
-		return this.cartRepository.findAll()
+		log.info("*** CartDto List, service; fetch all active carts *");
+		return this.cartRepository.findAllByIsActiveTrue() // Cambiado para buscar solo activos
 				.stream()
 				.map(CartMappingHelper::map)
 				.map(c -> {
-					c.setUserDto(this.restTemplate.getForObject(
-							AppConstant.DiscoveredDomainsApi.USER_SERVICE_API_URL + "/" + c.getUserDto().getUserId(),
-							UserDto.class));
-					return c;
+					try {
+						c.setUserDto(this.restTemplate.getForObject(
+								AppConstant.DiscoveredDomainsApi.USER_SERVICE_API_URL + "/"
+										+ c.getUserDto().getUserId(),
+								UserDto.class));
+						return c;
+					} catch (Exception e) {
+						log.warn("Error fetching user data for userId: {} - {}",
+								c.getUserDto().getUserId(), e.getMessage());
+						return null;
+					}
 				})
+				.filter(c -> c != null)
 				.distinct()
 				.collect(Collectors.toUnmodifiableList());
 	}
 
 	@Override
 	public CartDto findById(final Integer cartId) {
-		log.info("*** CartDto, service; fetch cart by id *");
-		return this.cartRepository.findById(cartId)
+		log.info("*** CartDto, service; fetch active cart by id *");
+		return this.cartRepository.findByCartIdAndIsActiveTrue(cartId) // Cambiado para buscar solo activos
 				.map(CartMappingHelper::map)
 				.map(c -> {
 					c.setUserDto(this.restTemplate.getForObject(
@@ -60,8 +69,8 @@ public class CartServiceImpl implements CartService {
 							UserDto.class));
 					return c;
 				})
-				.orElseThrow(() -> new CartNotFoundException(String
-						.format("Cart with id: %d not found", cartId)));
+				.orElseThrow(() -> new CartNotFoundException(
+						String.format("Active cart with id: %d not found", cartId)));
 	}
 
 	@Override
@@ -94,8 +103,16 @@ public class CartServiceImpl implements CartService {
 
 	@Override
 	public void deleteById(final Integer cartId) {
-		log.info("*** Void, service; delete cart by id *");
-		this.cartRepository.deleteById(cartId);
+		log.info("*** Void, service; soft delete cart by id (set isActive=false) *");
+
+		Cart cart = this.cartRepository.findById(cartId)
+				.orElseThrow(() -> new CartNotFoundException(
+						String.format("Cart with id: %d not found", cartId)));
+
+		cart.setActive(false); // Realiza el soft delete
+		this.cartRepository.save(cart); // Guarda el cambio
+
+		log.debug("Cart with id: {} was soft deleted (isActive set to false)", cartId);
 	}
 
 }
