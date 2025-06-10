@@ -69,6 +69,12 @@ PUT `api/orders`
 
 No edita por referencia circular con cart
 
+Eliminar orden
+
+DELETE `api/orders`
+
+Funciona bien
+
 Ejemplo de payload
 
 ```json

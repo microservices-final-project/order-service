@@ -1,7 +1,6 @@
 package com.selimhorri.app.service.impl;
 
 import java.util.List;
-import java.util.PrimitiveIterator.OfDouble;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
