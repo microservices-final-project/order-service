@@ -53,27 +53,6 @@ public class CartResource {
 		return ResponseEntity.ok(this.cartService.save(cartDto));
 	}
 	
-	@PutMapping
-	public ResponseEntity<CartDto> update(
-			@RequestBody 
-			@NotNull(message = "Input must not be NULL") 
-			@Valid final CartDto cartDto) {
-		log.info("*** CartDto, resource; update cart *");
-		return ResponseEntity.ok(this.cartService.update(cartDto));
-	}
-	
-	@PutMapping("/{cartId}")
-	public ResponseEntity<CartDto> update(
-			@PathVariable("cartId")
-			@NotBlank(message = "Input must not be blank")
-			@Valid final String cartId,
-			@RequestBody 
-			@NotNull(message = "Input must not be NULL") 
-			@Valid final CartDto cartDto) {
-		log.info("*** CartDto, resource; update cart with cartId *");
-		return ResponseEntity.ok(this.cartService.update(Integer.parseInt(cartId), cartDto));
-	}
-	
 	@DeleteMapping("/{cartId}")
 	public ResponseEntity<Boolean> deleteById(@PathVariable("cartId") final String cartId) {
 		log.info("*** Boolean, resource; delete cart by id *");
