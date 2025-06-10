@@ -54,7 +54,7 @@ public class ApiExceptionHandler {
 	public <T extends RuntimeException> ResponseEntity<ExceptionMsg> handleApiRequestException(final T e) {
 
 		log.info("**ApiExceptionHandler controller, handle API request*\n");
-		final var badRequest = HttpStatus.BAD_REQUEST;
+		final var badRequest = HttpStatus.NOT_FOUND;
 
 		return new ResponseEntity<>(
 				ExceptionMsg.builder()

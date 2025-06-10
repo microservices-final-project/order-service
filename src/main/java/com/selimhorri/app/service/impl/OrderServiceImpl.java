@@ -8,8 +8,10 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.selimhorri.app.dto.OrderDto;
+import com.selimhorri.app.exception.wrapper.CartNotFoundException;
 import com.selimhorri.app.exception.wrapper.OrderNotFoundException;
 import com.selimhorri.app.helper.OrderMappingHelper;
+import com.selimhorri.app.repository.CartRepository;
 import com.selimhorri.app.repository.OrderRepository;
 import com.selimhorri.app.service.OrderService;
 
@@ -21,19 +23,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
-	
+
 	private final OrderRepository orderRepository;
-	
+	private final CartRepository cartRepository;
+
 	@Override
 	public List<OrderDto> findAll() {
 		log.info("*** OrderDto List, service; fetch all orders *");
 		return this.orderRepository.findAll()
 				.stream()
-					.map(OrderMappingHelper::map)
-					.distinct()
-					.collect(Collectors.toUnmodifiableList());
+				.map(OrderMappingHelper::map)
+				.distinct()
+				.collect(Collectors.toUnmodifiableList());
 	}
-	
+
 	@Override
 	public OrderDto findById(final Integer orderId) {
 		log.info("*** OrderDto, service; fetch order by id *");
@@ -42,45 +45,48 @@ public class OrderServiceImpl implements OrderService {
 				.orElseThrow(() -> new OrderNotFoundException(String
 						.format("Order with id: %d not found", orderId)));
 	}
-	
+
 	@Override
 	public OrderDto save(final OrderDto orderDto) {
 		log.info("*** OrderDto, service; save order *");
 		orderDto.setOrderId(null);
-		return OrderMappingHelper.map(this.orderRepository
-				.save(OrderMappingHelper.map(orderDto)));
+
+		// Service-level validation
+		if (orderDto.getCartDto() == null || orderDto.getCartDto().getCartId() == null) {
+			log.error("Order must be associated with a cart");
+			throw new IllegalArgumentException("Order must be associated with a cart");
+		}
+
+		// Check if cart exists
+		cartRepository.findById(orderDto.getCartDto().getCartId())
+				.orElseThrow(() -> {
+					log.error("Cart not found with ID: {}", orderDto.getCartDto().getCartId());
+					return new CartNotFoundException("Cart not found with ID: " + orderDto.getCartDto().getCartId());
+				});
+
+		// Proceed with saving if validations pass
+		return OrderMappingHelper.map(
+				this.orderRepository.save(OrderMappingHelper.map(orderDto)));
 	}
-	
+
 	@Override
 	public OrderDto update(final OrderDto orderDto) {
 		log.info("*** OrderDto, service; update order *");
 		return OrderMappingHelper.map(this.orderRepository
 				.save(OrderMappingHelper.map(orderDto)));
 	}
-	
+
 	@Override
 	public OrderDto update(final Integer orderId, final OrderDto orderDto) {
 		log.info("*** OrderDto, service; update order with orderId *");
 		return OrderMappingHelper.map(this.orderRepository
 				.save(OrderMappingHelper.map(this.findById(orderId))));
 	}
-	
+
 	@Override
 	public void deleteById(final Integer orderId) {
 		log.info("*** Void, service; delete order by id *");
 		this.orderRepository.delete(OrderMappingHelper.map(this.findById(orderId)));
 	}
-	
-	
-	
+
 }
-
-
-
-
-
-
-
-
-
-
