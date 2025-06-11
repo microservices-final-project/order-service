@@ -89,9 +89,9 @@ public class OrderServiceImpl implements OrderService {
                                         newStatus = OrderStatus.ORDERED;
                                         break;
                                 case ORDERED:
-                                        newStatus = OrderStatus.PAID;
+                                        newStatus = OrderStatus.IN_PAYMENT;
                                         break;
-                                case PAID:
+                                case IN_PAYMENT:
                                         throw new IllegalStateException(
                                                         "Order with ID " + orderId
                                                                         + " is already PAID and cannot be updated further");
@@ -135,7 +135,7 @@ public class OrderServiceImpl implements OrderService {
                                 .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
 
                 // Solo permitir borrar si el estado es CREADO o PEDIDO
-                if (order.getStatus() == OrderStatus.PAID) {
+                if (order.getStatus() == OrderStatus.IN_PAYMENT) {
                         throw new IllegalStateException(
                                         "Cannot delete order with ID " + orderId + " because it's already PAID");
                 }
