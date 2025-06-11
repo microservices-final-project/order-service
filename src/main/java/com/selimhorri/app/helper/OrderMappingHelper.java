@@ -41,6 +41,24 @@ public interface OrderMappingHelper {
                                 .build();
         }
 
+        public static Order mapForCreationOrder(final OrderDto orderDto) {
+                return Order.builder()
+                                .orderId(orderDto.getOrderId())
+                                .orderDate(LocalDateTime.now())
+                                .orderDesc(orderDto.getOrderDesc())
+                                .orderFee(orderDto.getOrderFee())
+                                .isActive(true)
+                                .status(
+                                                orderDto.getOrderStatus() != null
+                                                                ? orderDto.getOrderStatus()
+                                                                : OrderStatus.CREATED)
+                                .cart(
+                                                Cart.builder()
+                                                                .cartId(orderDto.getCartDto().getCartId())
+                                                                .build())
+                                .build();
+        }
+
         // New method for update operations that preserves cart association
         public static Order mapForUpdate(final OrderDto orderDto, final Cart cart) {
                 return Order.builder()

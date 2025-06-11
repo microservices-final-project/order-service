@@ -70,7 +70,7 @@ public class OrderServiceImpl implements OrderService {
 
                 // Proceed with saving if validations pass
                 return OrderMappingHelper.map(
-                                this.orderRepository.save(OrderMappingHelper.map(orderDto)));
+                                this.orderRepository.save(OrderMappingHelper.mapForCreationOrder(orderDto)));
         }
 
         @Override
