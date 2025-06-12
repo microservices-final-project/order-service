@@ -1,12 +1,9 @@
-package com.selimhorri.app.service;
+package com.selimhorri.app.unit.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +18,6 @@ import org.springframework.web.client.RestTemplate;
 import com.selimhorri.app.constant.AppConstant;
 import com.selimhorri.app.domain.Cart;
 import com.selimhorri.app.dto.CartDto;
-import com.selimhorri.app.dto.OrderDto;
 import com.selimhorri.app.dto.UserDto;
 import com.selimhorri.app.exception.wrapper.CartNotFoundException;
 import com.selimhorri.app.exception.wrapper.UserNotFoundException;

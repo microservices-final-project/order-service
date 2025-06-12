@@ -1,4 +1,4 @@
-package com.selimhorri.app.resource;
+package com.selimhorri.app.unit.resource;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -20,9 +20,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.selimhorri.app.dto.CartDto;
-import com.selimhorri.app.dto.response.collection.DtoCollectionResponse;
 import com.selimhorri.app.exception.ApiExceptionHandler;
 import com.selimhorri.app.exception.wrapper.CartNotFoundException;
+import com.selimhorri.app.resource.CartResource;
 import com.selimhorri.app.service.CartService;
 
 @ExtendWith(MockitoExtension.class)

@@ -1,4 +1,4 @@
-package com.selimhorri.app.resource;
+package com.selimhorri.app.unit.resource;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -34,6 +34,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.selimhorri.app.domain.enums.OrderStatus;
 import com.selimhorri.app.dto.OrderDto;
 import com.selimhorri.app.exception.ApiExceptionHandler;
+import com.selimhorri.app.resource.OrderResource;
 import com.selimhorri.app.service.OrderService;
 
 @ExtendWith(MockitoExtension.class)
