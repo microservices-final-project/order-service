@@ -9,6 +9,7 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.selimhorri.app.domain.Order;
+import com.selimhorri.app.domain.enums.OrderStatus;
 import com.selimhorri.app.dto.OrderDto;
 import com.selimhorri.app.exception.wrapper.CartNotFoundException;
 import com.selimhorri.app.exception.wrapper.OrderNotFoundException;
@@ -52,7 +53,7 @@ public class OrderServiceImpl implements OrderService {
         public OrderDto save(final OrderDto orderDto) {
                 log.info("*** OrderDto, service; save order *");
                 orderDto.setOrderId(null);
-
+                orderDto.setOrderStatus(null);
                 // Service-level validation
                 if (orderDto.getCartDto() == null || orderDto.getCartDto().getCartId() == null) {
                         log.error("Order must be associated with a cart");
@@ -69,34 +70,46 @@ public class OrderServiceImpl implements OrderService {
 
                 // Proceed with saving if validations pass
                 return OrderMappingHelper.map(
-                                this.orderRepository.save(OrderMappingHelper.map(orderDto)));
+                                this.orderRepository.save(OrderMappingHelper.mapForCreationOrder(orderDto)));
         }
 
         @Override
-        public OrderDto update(final OrderDto orderDto) {
-                log.info("*** OrderDto, service; update order *");
-
+        public OrderDto updateStatus(final int orderId) {
+                log.info("*** OrderDto, service; update order status *");
                 try {
-                        Order existingOrder = this.orderRepository.findByOrderIdAndIsActiveTrue(orderDto.getOrderId())
+                        Order existingOrder = this.orderRepository
+                                        .findByOrderIdAndIsActiveTrue(orderId)
                                         .orElseThrow(() -> new OrderNotFoundException(
-                                                        "Order not found with ID: " + orderDto.getOrderId()));
+                                                        "Order not found with ID: " + orderId));
 
-                        log.info("Existing order fetched successfully");
+                        // Actualizar al siguiente estado según la secuencia (Java 8+ compatible)
+                        OrderStatus newStatus;
+                        switch (existingOrder.getStatus()) {
+                                case CREATED:
+                                        newStatus = OrderStatus.ORDERED;
+                                        break;
+                                case ORDERED:
+                                        newStatus = OrderStatus.IN_PAYMENT;
+                                        break;
+                                case IN_PAYMENT:
+                                        throw new IllegalStateException(
+                                                        "Order with ID " + orderId
+                                                                        + " is already PAID and cannot be updated further");
+                                default:
+                                        throw new IllegalStateException(
+                                                        "Unknown order status: " + existingOrder.getStatus());
+                        }
 
-                        Order updatedOrder = OrderMappingHelper.mapForUpdate(orderDto, existingOrder.getCart());
-                        updatedOrder.setOrderDate(existingOrder.getOrderDate());
+                        existingOrder.setStatus(newStatus);
+                        Order updatedOrder = this.orderRepository.save(existingOrder);
 
-                        log.info("Order mapped successfully");
+                        log.info("Order status updated successfully from {} to {}",
+                                        existingOrder.getStatus(), newStatus);
 
-                        // Test if the issue occurs during save
-                        Order savedOrder = this.orderRepository.save(updatedOrder);
-
-                        log.info("Order saved successfully");
-
-                        return OrderMappingHelper.map(savedOrder);
+                        return OrderMappingHelper.map(updatedOrder);
 
                 } catch (Exception e) {
-                        log.error("Error during order update: ", e);
+                        log.error("Error during order status update: ", e);
                         throw e;
                 }
         }
@@ -104,12 +117,13 @@ public class OrderServiceImpl implements OrderService {
         @Override
         public OrderDto update(final Integer orderId, final OrderDto orderDto) {
                 log.info("*** OrderDto, service; update order with orderId *");
-
+                orderDto.setOrderStatus(null);
                 // Get existing order to preserve cart association
                 Order existingOrder = this.orderRepository.findByOrderIdAndIsActiveTrue(orderId)
                                 .orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderId));
                 orderDto.setOrderId(orderId);
                 // Map the updates but preserve the cart from existing order
+                orderDto.setOrderStatus(existingOrder.getStatus());
                 Order updatedOrder = OrderMappingHelper.mapForUpdate(orderDto, existingOrder.getCart());
                 updatedOrder.setOrderDate(existingOrder.getOrderDate());
                 return OrderMappingHelper.map(this.orderRepository.save(updatedOrder));
@@ -119,6 +133,12 @@ public class OrderServiceImpl implements OrderService {
         public void deleteById(final Integer orderId) {
                 Order order = orderRepository.findByOrderIdAndIsActiveTrue(orderId)
                                 .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
+
+                // Solo permitir borrar si el estado es CREADO o PEDIDO
+                if (order.getStatus() == OrderStatus.IN_PAYMENT) {
+                        throw new IllegalStateException(
+                                        "Cannot delete order with ID " + orderId + " because it's already PAID");
+                }
 
                 order.setActive(false);
                 orderRepository.save(order);
