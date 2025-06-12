@@ -28,11 +28,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "orders")
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "cart") // Exclude cart to prevent circular reference
 @EqualsAndHashCode(callSuper = true, exclude = {"cart"})
 @Data
 @Builder
@@ -61,6 +63,9 @@ public final class Order extends AbstractMappedEntity implements Serializable {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "cart_id")
 	private Cart cart;
+	
+	@Column(name = "is_active")
+	private boolean isActive;
 	
 }
 
