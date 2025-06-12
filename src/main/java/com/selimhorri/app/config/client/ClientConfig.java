@@ -13,8 +13,8 @@ public class ClientConfig {
 	public RestTemplate restTemplateBean() {
 		return new RestTemplate();
 	}
-	
-	// Hello
+	 
+	// Hello World!
 	
 }
 
