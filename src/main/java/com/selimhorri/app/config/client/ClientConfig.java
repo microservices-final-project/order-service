@@ -14,7 +14,7 @@ public class ClientConfig {
 		return new RestTemplate();
 	}
 	 
-	// Hello World!
+	// Hello World
 	
 }
 
