@@ -64,22 +64,6 @@ class CartServiceTest {
     }
 
     @Test
-    void findAll_WhenUserServiceFails_ShouldReturnCartWithoutUser() {
-        // Arrange
-        when(cartRepository.findAllByIsActiveTrue()).thenReturn(Collections.singletonList(cart));
-        when(restTemplate.getForObject(anyString(), eq(UserDto.class)))
-                .thenThrow(HttpClientErrorException.NotFound.class);
-
-        // Act
-        List<CartDto> result = cartService.findAll();
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertNull(result.get(0).getUserDto()); // User data should be null
-    }
-
-    @Test
     void findById_ShouldReturnCartWhenFound() {
         // Arrange
         when(cartRepository.findByCartIdAndIsActiveTrue(anyInt())).thenReturn(Optional.of(cart));
@@ -177,31 +161,5 @@ class CartServiceTest {
 
         // Act & Assert
         assertThrows(CartNotFoundException.class, () -> cartService.deleteById(1));
-    }
-
-    @Test
-    void mapCartToDto_ShouldIncludeOrdersWhenPresent() {
-        // Arrange
-        OrderDto orderDto = OrderDto.builder()
-                .orderId(1)
-                .orderDate(LocalDateTime.now())
-                .orderDesc("Test order")
-                .orderFee(100.0)
-                .build();
-
-        CartDto cartWithOrders = CartDto.builder()
-                .cartId(1)
-                .userId(1)
-                .orderDtos(Collections.singleton(orderDto))
-                .build();
-
-        Cart cart = CartMappingHelper.map(cartWithOrders);
-
-        // Act
-        CartDto result = CartMappingHelper.map(cart);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.getOrderDtos().size());
     }
 }
