@@ -26,50 +26,44 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class CartResource {
-	
+
 	private final CartService cartService;
-	
+
 	@GetMapping
 	public ResponseEntity<DtoCollectionResponse<CartDto>> findAll() {
 		log.info("*** CartDto List, controller; fetch all categories *");
 		return ResponseEntity.ok(new DtoCollectionResponse<>(this.cartService.findAll()));
 	}
-	
+
 	@GetMapping("/{cartId}")
-	public ResponseEntity<CartDto> findById(
-			@PathVariable("cartId") 
-			@NotBlank(message = "Input must not be blank") 
-			@Valid final String cartId) {
+	public ResponseEntity<?> findById(
+			@PathVariable("cartId") @NotBlank(message = "Input must not be blank") final String cartId) {
+
 		log.info("*** CartDto, resource; fetch cart by id *");
-		return ResponseEntity.ok(this.cartService.findById(Integer.parseInt(cartId)));
+
+		// Validar si es un número válido
+		if (!cartId.matches("\\d+")) {
+			return ResponseEntity.badRequest()
+					.body("cartId must be a valid positive number");
+		}
+
+		int id = Integer.parseInt(cartId);
+		CartDto cart = this.cartService.findById(id);
+		return ResponseEntity.ok(cart);
 	}
-	
+
 	@PostMapping
 	public ResponseEntity<CartDto> save(
-			@RequestBody 
-			@NotNull(message = "Input must not be NULL!") 
-			@Valid final CartDto cartDto) {
+			@RequestBody @NotNull(message = "Input must not be NULL!") @Valid final CartDto cartDto) {
 		log.info("*** CartDto, resource; save cart *");
 		return ResponseEntity.ok(this.cartService.save(cartDto));
 	}
-	
+
 	@DeleteMapping("/{cartId}")
 	public ResponseEntity<Boolean> deleteById(@PathVariable("cartId") final String cartId) {
 		log.info("*** Boolean, resource; delete cart by id *");
 		this.cartService.deleteById(Integer.parseInt(cartId));
 		return ResponseEntity.ok(true);
 	}
-	
-	
-	
+
 }
-
-
-
-
-
-
-
-
-
-
