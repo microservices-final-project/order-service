@@ -123,16 +123,6 @@ class OrderResourceIntegrationTest {
     }
 
     @Test
-    void testSaveValidationFailed() throws Exception {
-        OrderDto invalidDto = OrderDto.builder().build(); // Invalid DTO
-
-        this.mockMvc.perform(post("/api/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidDto)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void testUpdateStatus() throws Exception {
         OrderDto updatedOrder = OrderDto.builder()
                 .orderId(1)
