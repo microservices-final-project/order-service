@@ -60,9 +60,9 @@ public interface OrderMappingHelper {
         }
 
         // New method for update operations that preserves cart association
-        public static Order mapForUpdate(final OrderDto orderDto, final Cart cart) {
+        public static Order mapForUpdate(final OrderDto orderDto, final Cart cart, int orderId) {
                 return Order.builder()
-                                .orderId(orderDto.getOrderId())
+                                .orderId(orderId)
                                 .orderDate(orderDto.getOrderDate())
                                 .orderDesc(orderDto.getOrderDesc())
                                 .orderFee(orderDto.getOrderFee())
