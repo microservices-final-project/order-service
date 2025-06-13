@@ -101,7 +101,7 @@ public class CartServiceImpl implements CartService {
 
 		cartDto.setCartId(null);
 		cartDto.setOrderDtos(null);
-		return CartMappingHelper.map(this.cartRepository.save(CartMappingHelper.map(cartDto)));
+		return CartMappingHelper.map(this.cartRepository.save(CartMappingHelper.mapForCreation(cartDto)));
 	}
 
 	@Override

@@ -46,10 +46,23 @@ public class ApiExceptionHandler {
 				badRequest);
 	}
 
+	@ExceptionHandler(IllegalStateException.class)
+	public ResponseEntity<ExceptionMsg> handleIllegalStateException(final IllegalStateException e) {
+		log.error("**ApiExceptionHandler controller, handle IllegalStateException **", e);
+		final var badRequest = HttpStatus.BAD_REQUEST;
+
+		return new ResponseEntity<>(
+				ExceptionMsg.builder()
+						.msg("*" + e.getMessage() + "!**")
+						.httpStatus(badRequest)
+						.timestamp(ZonedDateTime.now(ZoneId.systemDefault()))
+						.build(),
+				badRequest);
+	}
+
 	@ExceptionHandler(value = {
 			CartNotFoundException.class,
 			OrderNotFoundException.class,
-			IllegalStateException.class,
 			UserNotFoundException.class,
 			EmptyResultDataAccessException.class,
 			EntityNotFoundException.class

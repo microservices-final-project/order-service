@@ -55,9 +55,26 @@ public class OrderServiceImpl implements OrderService {
                 orderDto.setOrderId(null);
                 orderDto.setOrderStatus(null);
                 // Service-level validation
+
                 if (orderDto.getCartDto() == null || orderDto.getCartDto().getCartId() == null) {
                         log.error("Order must be associated with a cart");
-                        throw new IllegalArgumentException("Order must be associated with a cart");
+                        throw new IllegalStateException("Order must be associated with a cart");
+                }
+
+                // Validaciones a nivel de servicio
+                if (orderDto.getOrderDesc() == null || orderDto.getOrderDesc().isEmpty()) {
+                        log.error("Order description must not be null or empty");
+                        throw new IllegalStateException("Order description must not be null or empty");
+                }
+
+                if (orderDto.getOrderFee() == null || orderDto.getOrderFee() < 0) {
+                        log.error("Order fee must be provided and non-negative");
+                        throw new IllegalStateException("Order fee must be provided and non-negative");
+                }
+
+                if (orderDto.getCartDto() == null || orderDto.getCartDto().getCartId() == null) {
+                        log.error("Order must be associated with a cart");
+                        throw new IllegalStateException("Order must be associated with a cart");
                 }
 
                 // Check if cart exists
@@ -124,7 +141,7 @@ public class OrderServiceImpl implements OrderService {
                 orderDto.setOrderId(orderId);
                 // Map the updates but preserve the cart from existing order
                 orderDto.setOrderStatus(existingOrder.getStatus());
-                Order updatedOrder = OrderMappingHelper.mapForUpdate(orderDto, existingOrder.getCart());
+                Order updatedOrder = OrderMappingHelper.mapForUpdate(orderDto, existingOrder.getCart(), orderId);
                 updatedOrder.setOrderDate(existingOrder.getOrderDate());
                 return OrderMappingHelper.map(this.orderRepository.save(updatedOrder));
         }

@@ -23,6 +23,14 @@ public interface CartMappingHelper {
 				.userId(cartDto.getUserId())
 				.build();
 	}
+
+		public static Cart mapForCreation(final CartDto cartDto) {
+		return Cart.builder()
+				.cartId(cartDto.getCartId())
+				.userId(cartDto.getUserId())
+				.isActive(true)
+				.build();
+	}
 	
 	
 	
