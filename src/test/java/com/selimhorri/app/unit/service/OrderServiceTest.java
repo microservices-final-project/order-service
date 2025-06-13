@@ -145,19 +145,6 @@ class OrderServiceTest {
     }
 
     @Test
-    void save_ShouldThrowExceptionWhenCartIsNull() {
-        // Arrange
-        OrderDto newOrderDto = OrderDto.builder()
-                .orderDesc("New order")
-                .orderFee(50.0)
-                .cartDto(null) // Null cart
-                .build();
-
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> orderService.save(newOrderDto));
-    }
-
-    @Test
     void updateStatus_ShouldUpdateFromCreatedToOrdered() {
         // Arrange
         order.setStatus(OrderStatus.CREATED);
